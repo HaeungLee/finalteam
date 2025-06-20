@@ -7,9 +7,11 @@ import {
 } from "@agentica/rpc";
 import { DallE3Service } from "@wrtnlabs/connector-dall-e-3";
 import { DiscordService } from "@wrtnlabs/connector-discord";
+import { DiscordWrapperService } from "./services/DiscordWrapperService";
 import { FigmaService } from "@wrtnlabs/connector-figma";
 import { GithubService } from "@wrtnlabs/connector-github";
 import { GmailService } from "@wrtnlabs/connector-gmail";
+import { GmailWrapperService } from "./services/GmailWrapperService";
 import { GoogleCalendarService } from "@wrtnlabs/connector-google-calendar";
 import { GoogleDocsService } from "@wrtnlabs/connector-google-docs";
 import { GoogleDriveService } from "@wrtnlabs/connector-google-drive";
@@ -61,7 +63,7 @@ const getModelConfig = () => {
           "X-Title": "Agentica Server",
         },
       }),
-      model: modelName, // Free tier models: google/gemma-2-9b-it:free, meta-llama/llama-3.1-8b-instruct:free, etc.
+      model: modelName, 
     };
   } else {
     if (!SGlobal.env.OPENAI_API_KEY) {
@@ -84,7 +86,6 @@ const main = async (): Promise<void> => {
 
   // Initialize FileManager for services that need it
   const fileManager = new FileManager();
-
   const server: WebSocketServer<
     null,
     IAgenticaRpcService<"chatgpt">,
@@ -99,8 +100,7 @@ const main = async (): Promise<void> => {
       vendor: modelConfig,
       config: {
         locale: "ko-KR",
-      },
-      controllers: [
+      },      controllers: [
         // {
         //   name: "DallE3 Connector",
         //   protocol: "class",
@@ -109,14 +109,14 @@ const main = async (): Promise<void> => {
         //     openai: modelConfig.api,
         //   }),
         // },
-        // {
-        //   name: "Discord Connector",
-        //   protocol: "class",
-        //   application: typia.llm.application<DiscordService, "chatgpt">(),
-        //   execute: new DiscordService({
-        //     discordToken: SGlobal.env.DISCORD_TOKEN || "",
-        //   }),
-        // },
+        {
+          name: "Discord Connector",
+          protocol: "class",
+          application: typia.llm.application<DiscordWrapperService, "chatgpt">(),
+          execute: new DiscordWrapperService({
+            discordToken: SGlobal.env.DISCORD_TOKEN || "",
+          }),
+        },
         // {
         //   name: "Figma Connector",
         //   protocol: "class",
@@ -127,111 +127,105 @@ const main = async (): Promise<void> => {
         //     figmaRefreshToken: SGlobal.env.FIGMA_REFRESH_TOKEN || "",
         //   }),
         // },
-        // {
-        //   name: "Github Connector",
-        //   protocol: "class",
-        //   application: typia.llm.application<GithubService, "chatgpt">(),
-        //   execute: new GithubService({
-        //     githubAccessToken: SGlobal.env.GITHUB_ACCESS_TOKEN || "",
-        //   }),
-        // },
-        // {
-        //   name: "Gmail Connector",
-        //   protocol: "class",
-        //   application: typia.llm.application<GmailService, "chatgpt">(),
-        //   execute: new GmailService({
-        //     googleClientId: SGlobal.env.GOOGLE_CLIENT_ID || "",
-        //     googleClientSecret: SGlobal.env.GOOGLE_CLIENT_SECRET || "",
-        //     googleRefreshToken: SGlobal.env.GOOGLE_REFRESH_TOKEN || "",
-        //   }),
-        // },
-        // {
-        //   name: "GoogleCalendar Connector",
-        //   protocol: "class",
-        //   application: typia.llm.application<
-        //     GoogleCalendarService,
-        //     "chatgpt"
-        //   >(),
-        //   execute: new GoogleCalendarService({
-        //     googleClientId: SGlobal.env.GOOGLE_CLIENT_ID || "",
-        //     googleClientSecret: SGlobal.env.GOOGLE_CLIENT_SECRET || "",
-        //     googleRefreshToken: SGlobal.env.GOOGLE_REFRESH_TOKEN || "",
-        //   }),
-        // },
-        // {
-        //   name: "GoogleDocs Connector",
-        //   protocol: "class",
-        //   application: typia.llm.application<GoogleDocsService, "chatgpt">(),
-        //   execute: new GoogleDocsService({
-        //     googleClientId: SGlobal.env.GOOGLE_CLIENT_ID || "",
-        //     googleClientSecret: SGlobal.env.GOOGLE_CLIENT_SECRET || "",
-        //     googleRefreshToken: SGlobal.env.GOOGLE_REFRESH_TOKEN || "",
-        //   }),
-        // },
-        // {
-        //   name: "GoogleDrive Connector",
-        //   protocol: "class",
-        //   application: typia.llm.application<GoogleDriveService, "chatgpt">(),
-        //   execute: new GoogleDriveService({
-        //     googleClientId: SGlobal.env.GOOGLE_CLIENT_ID || "",
-        //     googleClientSecret: SGlobal.env.GOOGLE_CLIENT_SECRET || "",
-        //     googleRefreshToken: SGlobal.env.GOOGLE_REFRESH_TOKEN || "",
-        //   }),
-        // },
-        // {
-        //   name: "GoogleMap Connector",
-        //   protocol: "class",
-        //   application: typia.llm.application<GoogleMapService, "chatgpt">(),
-        //   execute: new GoogleMapService({
-        //     googleApiKey: SGlobal.env.GOOGLE_API_KEY || "",
-        //     serpApiKey: SGlobal.env.SERP_API_KEY || "",
-        //   }),
-        // },
-        // {
-        //   name: "GoogleShopping Connector",
-        //   protocol: "class",
-        //   application: typia.llm.application<
-        //     GoogleShoppingService,
-        //     "chatgpt"
-        //   >(),
-        //   execute: new GoogleShoppingService({
-        //     serpApiKey: SGlobal.env.SERP_API_KEY || "",
-        //   }),
-        // },
-        // {
-        //   name: "GoogleTrend Connector",
-        //   protocol: "class",
-        //   application: typia.llm.application<GoogleTrendService, "chatgpt">(),
-        //   execute: new GoogleTrendService({
-        //     serpApiKey: SGlobal.env.SERP_API_KEY || "",
-        //   }),
-        // },
-        // {
-        //   name: "KakaoMap Connector",
-        //   protocol: "class",
-        //   application: typia.llm.application<KakaoMapService, "chatgpt">(),
-        //   execute: new KakaoMapService({
-        //     kakaoMapClientId: SGlobal.env.KAKAO_MAP_CLIENT_ID || "",
-        //   }),
-        // },
-        // {
-        //   name: "KakaoNavi Connector",
-        //   protocol: "class",
-        //   application: typia.llm.application<KakaoNaviService, "chatgpt">(),
-        //   execute: new KakaoNaviService({
-        //     kakaoNaviClientId: SGlobal.env.KAKAO_NAVI_CLIENT_ID || "",
-        //   }),
-        // },
-        // {
-        //   name: "KakaoTalk Connector",
-        //   protocol: "class",
-        //   application: typia.llm.application<KakaoTalkService, "chatgpt">(),
-        //   execute: new KakaoTalkService({
-        //     kakaoTalkClientId: SGlobal.env.KAKAO_TALK_CLIENT_ID || "",
-        //     kakaoTalkClientSecret: SGlobal.env.KAKAO_TALK_CLIENT_SECRET || "",
-        //     kakaoTalkRefreshToken: SGlobal.env.KAKAO_TALK_REFRESH_TOKEN || "",
-        //   }),
-        // },
+        {
+           name: "Github Connector",
+           protocol: "class",
+           application: typia.llm.application<GithubService, "chatgpt">(),
+           execute: new GithubService({
+             githubAccessToken: SGlobal.env.GITHUB_ACCESS_TOKEN || "",
+           }),
+         },
+        {
+          name: "Gmail Connector",
+          protocol: "class",
+          application: typia.llm.application<GmailWrapperService, "chatgpt">(),
+          execute: new GmailWrapperService({
+            googleClientId: SGlobal.env.GOOGLE_CLIENT_ID || "",
+            googleClientSecret: SGlobal.env.GOOGLE_CLIENT_SECRET || "",
+            googleRefreshToken: SGlobal.env.GOOGLE_REFRESH_TOKEN || "",
+          }),
+        },
+        {
+           name: "GoogleCalendar Connector",
+           protocol: "class",
+           application: typia.llm.application<GoogleCalendarService,"chatgpt">(),
+           execute: new GoogleCalendarService({
+             googleClientId: SGlobal.env.GOOGLE_CLIENT_ID || "",
+             googleClientSecret: SGlobal.env.GOOGLE_CLIENT_SECRET || "",
+             googleRefreshToken: SGlobal.env.GOOGLE_REFRESH_TOKEN || "",
+           }),
+        },
+        {
+           name: "GoogleDocs Connector",
+           protocol: "class",
+           application: typia.llm.application<GoogleDocsService, "chatgpt">(),
+           execute: new GoogleDocsService({
+             googleClientId: SGlobal.env.GOOGLE_CLIENT_ID || "",
+             googleClientSecret: SGlobal.env.GOOGLE_CLIENT_SECRET || "",
+             googleRefreshToken: SGlobal.env.GOOGLE_REFRESH_TOKEN || "",
+           }),
+        },
+        {
+          name: "GoogleDrive Connector",
+           protocol: "class",
+           application: typia.llm.application<GoogleDriveService, "chatgpt">(),
+           execute: new GoogleDriveService({
+             googleClientId: SGlobal.env.GOOGLE_CLIENT_ID || "",
+             googleClientSecret: SGlobal.env.GOOGLE_CLIENT_SECRET || "",
+             googleRefreshToken: SGlobal.env.GOOGLE_REFRESH_TOKEN || "",
+           }),
+        },
+        {
+           name: "GoogleMap Connector",
+           protocol: "class",
+           application: typia.llm.application<GoogleMapService, "chatgpt">(),
+           execute: new GoogleMapService({
+             googleApiKey: SGlobal.env.GOOGLE_API_KEY || "",
+             serpApiKey: SGlobal.env.SERP_API_KEY || "",
+           }),
+        },
+        {
+           name: "GoogleShopping Connector",
+           protocol: "class",
+           application: typia.llm.application<GoogleShoppingService,"chatgpt">(),
+           execute: new GoogleShoppingService({
+             serpApiKey: SGlobal.env.SERP_API_KEY || "",
+           }),
+        },
+        {
+           name: "GoogleTrend Connector",
+           protocol: "class",
+           application: typia.llm.application<GoogleTrendService, "chatgpt">(),
+           execute: new GoogleTrendService({
+             serpApiKey: SGlobal.env.SERP_API_KEY || "",
+           }),
+        },
+        {
+           name: "KakaoMap Connector",
+           protocol: "class",
+           application: typia.llm.application<KakaoMapService, "chatgpt">(),
+           execute: new KakaoMapService({
+             kakaoMapClientId: SGlobal.env.KAKAO_MAP_CLIENT_ID || "",
+           }),
+        },
+        {
+           name: "KakaoNavi Connector",
+           protocol: "class",
+           application: typia.llm.application<KakaoNaviService, "chatgpt">(),
+           execute: new KakaoNaviService({
+             kakaoNaviClientId: SGlobal.env.KAKAO_NAVI_CLIENT_ID || "",
+           }),
+        },
+        {
+           name: "KakaoTalk Connector",
+           protocol: "class",
+           application: typia.llm.application<KakaoTalkService, "chatgpt">(),
+           execute: new KakaoTalkService({
+             kakaoTalkClientId: SGlobal.env.KAKAO_TALK_CLIENT_ID || "",
+             kakaoTalkClientSecret: SGlobal.env.KAKAO_TALK_CLIENT_SECRET || "",
+             kakaoTalkRefreshToken: SGlobal.env.KAKAO_TALK_REFRESH_TOKEN || "",
+           }),
+        },
         // {
         //   name: "NaverBlog Connector",
         //   protocol: "class",
@@ -250,23 +244,23 @@ const main = async (): Promise<void> => {
         //     naverCafeClientSecret: SGlobal.env.NAVER_CAFE_CLIENT_SECRET || "",
         //   }),
         // },
-        // {
-        //   name: "NaverNews Connector",
-        //   protocol: "class",
-        //   application: typia.llm.application<NaverNewsService, "chatgpt">(),
-        //   execute: new NaverNewsService({
-        //     naverNewsClientId: SGlobal.env.NAVER_NEWS_CLIENT_ID || "",
-        //     naverNewsClientSecret: SGlobal.env.NAVER_NEWS_CLIENT_SECRET || "",
-        //   }),
-        // },
-        // {
-        //   name: "Notion Connector",
-        //   protocol: "class",
-        //   application: typia.llm.application<NotionService, "chatgpt">(),
-        //   execute: new NotionService({
-        //     notionApiKey: SGlobal.env.NOTION_API_KEY || "",
-        //   }),
-        // },
+        {
+           name: "NaverNews Connector",
+           protocol: "class",
+           application: typia.llm.application<NaverNewsService, "chatgpt">(),
+           execute: new NaverNewsService({
+             naverNewsClientId: SGlobal.env.NAVER_NEWS_CLIENT_ID || "",
+             naverNewsClientSecret: SGlobal.env.NAVER_NEWS_CLIENT_SECRET || "",
+           }),
+        },
+        {
+           name: "Notion Connector",
+           protocol: "class",
+           application: typia.llm.application<NotionService, "chatgpt">(),
+           execute: new NotionService({
+             notionApiKey: SGlobal.env.NOTION_API_KEY || "",
+           }),
+        },
         // {
         //   name: "StableDiffusionBeta Connector",
         //   protocol: "class",
@@ -293,14 +287,14 @@ const main = async (): Promise<void> => {
         //     youtubeOfficialSearchGoogleApiKey: SGlobal.env.GOOGLE_API_KEY || "",
         //   }),
         // },
-        // {
-        //   name: "YoutubeSearch Connector",
-        //   protocol: "class",
-        //   application: typia.llm.application<YoutubeSearchService, "chatgpt">(),
-        //   execute: new YoutubeSearchService({
-        //     serpApiKey: SGlobal.env.SERP_API_KEY || "",
-        //   }),
-        // },
+       {
+          name: "YoutubeSearch Connector",
+          protocol: "class",
+          application: typia.llm.application<YoutubeSearchService, "chatgpt">(),
+          execute: new YoutubeSearchService({
+            serpApiKey: SGlobal.env.SERP_API_KEY || "",
+          }),
+        },
       ],
       histories:
         // check {id} parameter

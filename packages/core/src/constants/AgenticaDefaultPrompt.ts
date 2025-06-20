@@ -16,7 +16,7 @@ import { AgenticaSystemPrompt } from "./AgenticaSystemPrompt";
 const getLocale = new Singleton(() =>
   is_node()
     // eslint-disable-next-line node/prefer-global/process
-    ? (process.env.LANG?.split(".")[0] ?? "en-US")
+    ? (process.env.LANG?.split(".")[0] ?? "ko-KR")
     : navigator.language,
 );
 

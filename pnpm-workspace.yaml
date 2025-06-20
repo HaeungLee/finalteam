@@ -2,6 +2,7 @@ packages:
   - packages/*
   - benchmark/*
   - test
+  - test2agent/*
   - website
 enablePrePostScripts: true
 useNodeVersion: 22.15.0
