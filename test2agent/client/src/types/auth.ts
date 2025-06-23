@@ -5,6 +5,7 @@ export interface User {
   name: string;
   provider?: string;
   token?: string;
+  profileImage?: string | null;
   createdAt?: string;
   updatedAt?: string;
 }

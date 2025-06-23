@@ -137,7 +137,7 @@ class ApiService {
 
   // 👤 사용자 정보 관련 API (향후 확장용)
   async getCurrentUser(): Promise<ApiResponse<any>> {
-    return this.request<any>('/api/user/me', {
+    return this.request<any>('/api/member/me', {
       method: 'GET',
     });
   }

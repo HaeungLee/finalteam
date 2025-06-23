@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import { apiService, getSocialLoginUrl, type LoginRequest, type SignupRequest } from '../utils/api';
+import React, { createContext, useContext, useReducer, useEffect, ReactNode, useCallback } from 'react';
 import { User } from '../types/auth';
+import { apiService, getSocialLoginUrl, type LoginRequest, type SignupRequest } from '../utils/api';
 
 // 인증 상태 타입
 interface AuthState {
@@ -58,6 +58,7 @@ interface AuthContextType {
   verifyCode: (email: string, code: string) => Promise<boolean>;
   checkEmailExists: (email: string) => Promise<boolean>;
   loginWithSocial: (provider: 'google' | 'naver' | 'kakao') => void;
+  setSocialLoginSuccess: (email: string, name: string) => void;
 }
 
 // Context 생성
@@ -68,7 +69,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [state, dispatch] = useReducer(authReducer, initialState);
 
   // 🔑 로그인 함수
-  const login = async (credentials: LoginRequest): Promise<boolean> => {
+  const login = useCallback(async (credentials: LoginRequest): Promise<boolean> => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
       const response = await apiService.login(credentials);
@@ -93,10 +94,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
       return false;
     }
-  };
+  }, []);
 
   // 📝 회원가입 함수
-  const signup = async (userData: SignupRequest): Promise<boolean> => {
+  const signup = useCallback(async (userData: SignupRequest): Promise<boolean> => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
       const response = await apiService.signup(userData);
@@ -117,10 +118,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
       return false;
     }
-  };
+  }, [login]);
 
   // 🚪 로그아웃 함수
-  const logout = async (): Promise<void> => {
+  const logout = useCallback(async (): Promise<void> => {
     try {
       await apiService.logout();
     } catch (error) {
@@ -128,10 +129,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     } finally {
       dispatch({ type: 'LOGOUT' });
     }
-  };
+  }, []);
 
   // 📧 이메일 인증번호 전송
-  const sendVerificationCode = async (email: string): Promise<boolean> => {
+  const sendVerificationCode = useCallback(async (email: string): Promise<boolean> => {
     try {
       const response = await apiService.sendVerificationCode(email);
       return response.success;
@@ -140,10 +141,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
       return false;
     }
-  };
+  }, []);
 
   // ✅ 인증번호 확인
-  const verifyCode = async (email: string, code: string): Promise<boolean> => {
+  const verifyCode = useCallback(async (email: string, code: string): Promise<boolean> => {
     try {
       const response = await apiService.verifyCode({ email, verificationCode: code });
       return response.success;
@@ -152,10 +153,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
       return false;
     }
-  };
+  }, []);
 
   // 📧 이메일 중복 확인
-  const checkEmailExists = async (email: string): Promise<boolean> => {
+  const checkEmailExists = useCallback(async (email: string): Promise<boolean> => {
     try {
       const response = await apiService.checkEmailExists(email);
       return response.success ? response.data.exists : false;
@@ -163,18 +164,28 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       console.error('이메일 중복 확인 실패:', error);
       return false;
     }
-  };
+  }, []);
 
   // 🌐 소셜 로그인
-  const loginWithSocial = (provider: 'google' | 'naver' | 'kakao'): void => {
+  const loginWithSocial = useCallback((provider: 'google' | 'naver' | 'kakao'): void => {
     const socialLoginUrl = getSocialLoginUrl(provider);
     window.location.href = socialLoginUrl;
-  };
+  }, []);
+
+  // 🎉 소셜 로그인 성공 처리
+  const setSocialLoginSuccess = useCallback((email: string, name: string): void => {
+    const user: User = {
+      email,
+      name,
+      token: '', // HTTP-Only 쿠키로 관리되므로 빈 문자열
+    };
+    dispatch({ type: 'SET_USER', payload: user });
+  }, []);
 
   // 에러 초기화
-  const clearError = (): void => {
+  const clearError = useCallback((): void => {
     dispatch({ type: 'SET_ERROR', payload: null });
-  };
+  }, []);
 
   // 페이지 로드 시 인증 상태 확인
   useEffect(() => {
@@ -209,6 +220,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     verifyCode,
     checkEmailExists,
     loginWithSocial,
+    setSocialLoginSuccess,
   };
 
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;

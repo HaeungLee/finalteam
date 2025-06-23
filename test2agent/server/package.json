@@ -3,10 +3,15 @@
   "name": "agentica-template-nodejs",
   "version": "0.1.0",
   "description": "Template repository of Agentica for NodeJS WebSocket Server",
+  "main": "dist/index.js",
   "scripts": {
     "build": "rimraf lib && tsc",
     "prepare": "ts-patch install && ts-node build/env.ts",
-    "start": "node lib"
+    "start": "node lib",
+    "dev": "ts-node src/index.ts",
+    "voice-proxy": "ts-node src/voiceProxy.ts",
+    "dev:voice": "concurrently \"npm run dev\" \"npm run voice-proxy\"",
+    "test": "jest"
   },
   "keywords": [
     "agentica",
