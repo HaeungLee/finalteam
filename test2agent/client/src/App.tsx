@@ -1,13 +1,17 @@
 import { useState } from "react";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { Chat } from "./components/chat/Chat";
-import { Landing } from "./components/Landing";
+import { Home } from "./components/home/Home";
 import { AgenticaRpcProvider } from "./provider/AgenticaRpcProvider";
 import { AuthProvider } from "./store/authStore";
 import { Header } from "./components/layout/Header";
 import { LoginModal } from "./components/auth/LoginModal";
+import Navigation from "./components/layout/Navigation";
 
-function App() {
+function AppContent() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isNavOpen, setIsNavOpen] = useState(true);
+  const location = useLocation();
 
   const handleLoginClick = () => {
     setIsLoginModalOpen(true);
@@ -17,33 +21,48 @@ function App() {
     setIsLoginModalOpen(false);
   };
 
+  const toggleNav = () => {
+    setIsNavOpen(!isNavOpen);
+  };
+
+  // Hide navigation on chat page
+  const isChatPage = location.pathname === '/chat';
+
   return (
-    <AuthProvider>
-      <div className="relative min-h-screen">
-        {/* Shared Background */}
-        <div className="fixed inset-0 bg-gradient-to-br from-zinc-900 via-slate-900 to-neutral-900" />
-        <div className="fixed inset-0 opacity-[0.07] bg-[radial-gradient(#94a3b8_1px,transparent_1px)] [background-size:16px_16px]" />
+    <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-slate-900 to-neutral-900">
+      <div className="fixed inset-0 opacity-[0.07] bg-[radial-gradient(#94a3b8_1px,transparent_1px)] [background-size:16px_16px]" />
 
-        {/* Header */}
-        <Header onLoginClick={handleLoginClick} />
+      {/* Header */}
+      <Header onLoginClick={handleLoginClick} />
+      
+      {/* Navigation - Hidden on chat page */}
+      {!isChatPage && (
+        <Navigation isOpen={isNavOpen} onToggle={toggleNav} />
+      )}
 
-        {/* Content */}
-        <div className="relative flex w-full min-h-screen pt-20">
-          <div className="hidden lg:flex md:flex-1">
-            <Landing />
-          </div>
-          <AgenticaRpcProvider>
-            <Chat />
-          </AgenticaRpcProvider>
-        </div>
-
-        {/* Login Modal */}
-        <LoginModal 
-          isOpen={isLoginModalOpen} 
-          onClose={handleCloseModal} 
-        />
+      <div className={`pt-16 min-h-screen transition-all duration-300 ${!isChatPage && isNavOpen ? 'pl-64' : 'pl-0'}`}>
+        <main className="h-[calc(100vh-4rem)] overflow-auto">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/chat" element={<Chat />} />
+          </Routes>
+        </main>
       </div>
-    </AuthProvider>
+
+      <LoginModal isOpen={isLoginModalOpen} onClose={handleCloseModal} />
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AuthProvider>
+        <AgenticaRpcProvider>
+          <AppContent />
+        </AgenticaRpcProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 

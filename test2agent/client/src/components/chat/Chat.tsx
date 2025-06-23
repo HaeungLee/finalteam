@@ -1,16 +1,24 @@
 import { useAgenticaRpc } from "../../provider/AgenticaRpcProvider";
-import { ChatInput } from "./ChatInput";
 import { ChatMessages } from "./ChatMessages";
 import { ChatStatus } from "./ChatStatus";
 import { useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 
 export function Chat() {
-  const { messages, conversate, isConnected, isError, tryConnect } =
-    useAgenticaRpc();
+  const { messages, isConnected, isError, tryConnect, conversate } = useAgenticaRpc();
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
   const hasMessage = messages.length > 0;
-  const lastMessage = messages[messages.length - 1];
-  const isLastMessageFromUser = lastMessage?.type === "userMessage";
+
+  // Handle initial message from home page
+  useEffect(() => {
+    const initialMessage = location.state?.initialMessage;
+    if (initialMessage) {
+      conversate(initialMessage);
+      // Clear the state to prevent resending on re-renders
+      window.history.replaceState({}, '');
+    }
+  }, [location.state, conversate]);
 
   const scrollToBottom = () => {
     if (messagesContainerRef.current) {
@@ -23,36 +31,27 @@ export function Chat() {
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = async (content: string) => {
-    try {
-      await conversate(content);
-    } catch (error) {
-      console.error("Failed to send message:", error);
-    }
-  };
-
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 min-w-0">
-      <div className="relative w-full h-[calc(100vh-2rem)] md:h-[calc(100vh-4rem)]">
+    <div className="flex-1 flex flex-col p-4 md:p-8 min-w-0 overflow-hidden">
+      <div className="relative w-full h-full">
         <div className="h-full flex flex-col bg-zinc-800/50 backdrop-blur-md rounded-2xl overflow-hidden border border-zinc-700/30">
           <div
             ref={messagesContainerRef}
             className="flex-1 overflow-y-auto p-6 space-y-6 scroll-smooth"
           >
-            {hasMessage && <ChatMessages messages={messages} />}
+            {hasMessage ? (
+              <ChatMessages messages={messages} />
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-400">
+                대화를 시작하세요
+              </div>
+            )}
             <ChatStatus
               isError={isError}
               isConnected={isConnected}
               hasMessages={hasMessage}
               onRetryConnect={tryConnect}
               isWsUrlConfigured={import.meta.env.VITE_AGENTICA_WS_URL !== ""}
-            />
-          </div>
-
-          <div className="p-4">
-            <ChatInput
-              onSendMessage={handleSendMessage}
-              disabled={!isConnected || isError || isLastMessageFromUser}
             />
           </div>
         </div>

@@ -6,7 +6,8 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useState
+  useState,
+  useRef
 } from "react";
 import { Driver, WebSocketConnector } from "tgrid";
 
@@ -33,11 +34,16 @@ export function AgenticaRpcProvider({ children }: PropsWithChildren) {
   const [driver, setDriver] =
     useState<Driver<IAgenticaRpcService<"chatgpt">, false>>();
 
-  const pushMessage = useCallback(
-    async (message: IAgenticaEventJson) =>
-      setMessages((prev) => [...prev, message]),
-    []
-  );
+  // 메시지 추가 함수를 안정적으로 유지하기 위해 ref 사용하고 Promise 반환하도록 수정
+  const pushMessageRef = useRef(async (message: IAgenticaEventJson) => {
+    setMessages(prev => [...prev, message]);
+    return Promise.resolve();
+  });
+
+  // pushMessageRef를 최신 상태로 유지
+  const pushMessage = useCallback(async (message: IAgenticaEventJson) => {
+    return pushMessageRef.current(message);
+  }, []);
 
   const tryConnect = useCallback(async () => {
     try {
@@ -51,9 +57,9 @@ export function AgenticaRpcProvider({ children }: PropsWithChildren) {
         IAgenticaRpcListener,
         IAgenticaRpcService<"chatgpt">
       >(null, {
-        assistantMessage: pushMessage,
-        describe: pushMessage,
-        userMessage: pushMessage
+        assistantMessage: (msg) => pushMessageRef.current(msg),
+        describe: (msg) => pushMessageRef.current(msg),
+        userMessage: (msg) => pushMessageRef.current(msg)
       });
       await connector.connect(import.meta.env.VITE_AGENTICA_WS_URL);
       const driver = connector.getDriver();
@@ -62,8 +68,9 @@ export function AgenticaRpcProvider({ children }: PropsWithChildren) {
     } catch (e) {
       console.error(e);
       setIsError(true);
+      throw e; // 오류를 다시 throw하여 상위에서 처리할 수 있도록 함
     }
-  }, [pushMessage]);
+  }, []); // 의존성 배열을 비움
 
   const conversate = useCallback(
     async (message: string) => {
@@ -82,13 +89,28 @@ export function AgenticaRpcProvider({ children }: PropsWithChildren) {
   );
 
   useEffect(() => {
-    (async () => {
-      const connector = await tryConnect();
-      return () => {
-        connector?.close();
+    let mounted = true;
+    let connector: WebSocketConnector<null, IAgenticaRpcListener, IAgenticaRpcService<"chatgpt">> | undefined;
+
+    const connect = async () => {
+      try {
+        connector = await tryConnect();
+      } catch (e) {
+        console.error("Connection error:", e);
+      }
+    };
+
+    if (mounted) {
+      connect();
+    }
+
+    return () => {
+      mounted = false;
+      if (connector) {
+        connector.close();
         setDriver(undefined);
-      };
-    })();
+      }
+    };
   }, [tryConnect]);
 
   const isConnected = !!driver;

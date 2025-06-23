@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAuth } from '../../store/authStore';
+import agenticaLogo from "/agentica.svg";
 
 interface HeaderProps {
   onLoginClick: () => void;
@@ -17,12 +18,17 @@ export const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 px-6 py-4">
+    <header className="fixed top-0 left-0 right-0 z-40 bg-[#111827]/95 backdrop-blur-md border-b border-[#111827] px-6 py-4">
       <div className="flex justify-between items-center max-w-7xl mx-auto">
         {/* 로고/제목 */}
-        <div className="flex items-center space-x-2">
-          <h1 className="text-xl font-semibold text-gray-900">
-            Agentica Chat
+        <div className="flex items-center space-x-2 ml-8">
+        <img
+          src={agenticaLogo}
+          alt="Agentica logo"
+          className="w-8 h-8 transition-all hover:filter hover:drop-shadow-[0_0_1rem_rgba(255,255,255,0.5)]"
+        />
+          <h1 className="text-xl font-semibold text-white">
+            Agentica
           </h1>
         </div>
 
@@ -46,7 +52,7 @@ export const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
               <button
                 onClick={handleLogout}
                 disabled={state.isLoading}
-                className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 text-sm text-gray-600 hover:cursor-pointer border border-[#111827] rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {state.isLoading ? '로그아웃 중...' : '로그아웃'}
               </button>
@@ -59,7 +65,7 @@ export const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
               {/* 로그인 버튼 */}
               <button
                 onClick={onLoginClick}
-                className="px-4 py-2 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-4 py-2 text-sm text-white bg-[#111827] rounded-md hover:cursor-pointer"
               >
                 로그인
               </button>

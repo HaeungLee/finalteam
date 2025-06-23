@@ -12,18 +12,24 @@
   "dependencies": {
     "@agentica/core": "^0.28.0",
     "@agentica/rpc": "^0.28.0",
+    "@tailwindcss/vite": "^4.1.10",
+    "axios": "^1.7.9",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "tgrid": "^1.1.0",
+    "react-icons": "^5.5.0",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "^6.28.0",
-    "axios": "^1.7.9"
+    "rehype-highlight": "^7.0.2",
+    "remark-gfm": "^4.0.1",
+    "tailwindcss": "^4.1.10",
+    "tgrid": "^1.1.0"
   },
   "devDependencies": {
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.0.4",
+    "@types/react-router-dom": "^5.3.3",
     "@vitejs/plugin-react": "^4.5.2",
     "typescript": "~5.8.3",
-    "vite": "^6.3.5",
-    "@types/react-router-dom": "^5.3.3"
+    "vite": "^6.3.5"
   }
 }

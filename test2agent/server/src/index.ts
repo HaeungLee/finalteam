@@ -37,7 +37,7 @@ import { KakaoMapService } from "@wrtnlabs/connector-kakao-map";
 // import { KakaoNaviService } from "@wrtnlabs/connector-kakao-navi";
 import { KakaoTalkService } from "@wrtnlabs/connector-kakao-talk";
 // import { NaverBlogService } from "@wrtnlabs/connector-naver-blog";
-import { NaverCafeService } from "@wrtnlabs/connector-naver-cafe";
+// import { NaverCafeService } from "@wrtnlabs/connector-naver-cafe";
 // import { NaverNewsService } from "@wrtnlabs/connector-naver-news";
 import { NotionService } from "@wrtnlabs/connector-notion";
 // import { WebCrawlerService } from "@wrtnlabs/connector-web-crawler";
@@ -297,13 +297,13 @@ const createKakaoTalkService = () => {
 //   return new NaverBlogService(props);
 // };
 
-const createNaverCafeService = () => {
-  const props = {
-    naverCafeClientId: SGlobal.env.NAVER_CAFE_CLIENT_ID || "",
-    naverCafeClientSecret: SGlobal.env.NAVER_CAFE_CLIENT_SECRET || "",
-  };
-  return new NaverCafeService(props);
-};
+// const createNaverCafeService = () => {
+//   const props = {
+//     naverCafeClientId: SGlobal.env.NAVER_CAFE_CLIENT_ID || "",
+//     naverCafeClientSecret: SGlobal.env.NAVER_CAFE_CLIENT_SECRET || "",
+//   };
+//   return new NaverCafeService(props);
+// };
 
 // const createNaverNewsService = () => {
 //   const props = {
@@ -632,12 +632,12 @@ const main = async (): Promise<void> => {
         //   application: typia.llm.application<NaverBlogService, "chatgpt">(),
         //   execute: createNaverBlogService(),
         // },
-        {
-          name: "NaverCafe Connector",
-          protocol: "class",
-          application: typia.llm.application<NaverCafeService, "chatgpt">(),
-          execute: createNaverCafeService(),
-        },
+        // {
+        //   name: "NaverCafe Connector",
+        //   protocol: "class",
+        //   application: typia.llm.application<NaverCafeService, "chatgpt">(),
+        //   execute: createNaverCafeService(),
+        // },
         // {
         //   name: "NaverNews Connector",
         //   protocol: "class",
