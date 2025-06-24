@@ -65,8 +65,8 @@ export function ChatInput({ onSendMessage, disabled, autoFocus = false }: ChatIn
             disabled={!message.trim() || disabled}
             className={`absolute right-2 bottom-2 p-2 rounded-lg transition-colors ${
               message.trim() && !disabled
-                ? "text-gray-400 hover:text-gray-400"
-                : "text-[#111827] cursor-not-allowed"
+                ? "text-gray-400 hover:text-gray-300 cursor-pointer"
+                : "text-[#111827]"
             }`}
             aria-label="Send message"
           >

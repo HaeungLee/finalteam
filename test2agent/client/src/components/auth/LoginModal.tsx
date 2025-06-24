@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../store/authStore';
+import agenticaLogo from "/agentica.svg";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -184,12 +185,22 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-slate-800 rounded-lg shadow-xl w-full max-w-md mx-4 border border-slate-700">
+      <div className="bg-slate-800 shadow-xl w-full max-w-md mx-4 border border-slate-700">
         {/* 헤더 */}
-        <div className="flex justify-between items-center p-6 border-b border-slate-700">
-          <h2 className="text-xl font-semibold text-white">
-            {activeTab === 'login' ? '로그인' : '회원가입'}
-          </h2>
+        <div className="flex items-center p-2 pb-3">
+          {/* 왼쪽 공간 (빈 div로 균형 유지) */}
+          <div className="w-8"></div>
+
+          {/* 가운데 정렬된 이미지 */}
+          <div className="flex-1 flex justify-center">
+            <img
+              src={agenticaLogo}
+              alt="Agentica logo"
+              className="w-6 h-6 transition-all hover:filter hover:drop-shadow-[0_0_1rem_rgba(255,255,255,0.5)]"
+            />
+          </div>
+
+          {/* 오른쪽 끝에 닫기 버튼 */}
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-200 text-2xl"
@@ -199,26 +210,28 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* 탭 버튼 */}
-        <div className="flex border-b border-slate-700">
+        <div className="flex border-slate-700">
           <button
             className={`flex-1 py-3 px-4 text-center ${
               activeTab === 'login'
-                ? 'border-b-2 border-blue-400 text-blue-400 font-medium'
+                ? 'text-white font-medium inline-flex flex-col items-center'
                 : 'text-gray-400 hover:text-gray-200'
             }`}
             onClick={() => setActiveTab('login')}
           >
-            로그인
+            <span>로그인</span>
+            {activeTab === 'login' && <div className="h-0.5 w-11 bg-[#04B5B5] mt-1"></div>}
           </button>
           <button
             className={`flex-1 py-3 px-4 text-center ${
               activeTab === 'signup'
-                ? 'border-b-2 border-blue-400 text-blue-400 font-medium'
+                ? 'text-white font-medium inline-flex flex-col items-center'
                 : 'text-gray-400 hover:text-gray-200'
             }`}
             onClick={() => setActiveTab('signup')}
           >
-            회원가입
+            <span>회원가입</span>
+            {activeTab === 'signup' && <div className="h-0.5 w-15 bg-[#04B5B5] mt-1"></div>}
           </button>
         </div>
 
@@ -235,29 +248,23 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
           {activeTab === 'login' && (
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  이메일
-                </label>
                 <input
                   type="email"
                   value={loginForm.email}
                   onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                  placeholder="이메일을 입력하세요"
+                  className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-white placeholder-gray-400 outline-none"
+                  placeholder="이메일 주소"
                   disabled={state.isLoading}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  비밀번호
-                </label>
                 <input
                   type="password"
                   value={loginForm.password}
                   onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                  placeholder="비밀번호를 입력하세요"
+                  className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-white placeholder-gray-400 outline-none"
+                  placeholder="비밀번호"
                   disabled={state.isLoading}
                 />
               </div>
@@ -265,7 +272,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
               <button
                 type="submit"
                 disabled={state.isLoading}
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-[#04B5B5] cursor-pointer text-white py-2 px-4 rounded-md outline-none disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {state.isLoading ? '로그인 중...' : '로그인'}
               </button>
@@ -277,9 +284,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
             <form onSubmit={handleSignup} className="space-y-4">
               {/* 이메일 인증 */}
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  이메일
-                </label>
                 <div className="flex gap-2">
                   <input
                     type="email"
@@ -291,7 +295,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                       setIsEmailSent(false);
                     }}
                     className="flex-1 px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                    placeholder="이메일을 입력하세요"
+                    placeholder="이메일 주소"
                     disabled={isEmailVerified || isCheckingEmail}
                   />
                   <button
@@ -334,45 +338,36 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
 
               {/* 이름 */}
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  이름
-                </label>
                 <input
                   type="text"
                   value={signupForm.name}
                   onChange={(e) => setSignupForm({ ...signupForm, name: e.target.value })}
                   className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                  placeholder="이름을 입력하세요"
+                  placeholder="이름"
                   disabled={state.isLoading}
                 />
               </div>
 
               {/* 비밀번호 */}
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  비밀번호
-                </label>
                 <input
                   type="password"
                   value={signupForm.password}
                   onChange={(e) => setSignupForm({ ...signupForm, password: e.target.value })}
                   className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                  placeholder="8자 이상의 비밀번호를 입력하세요"
+                  placeholder="비밀번호(8자 이상)"
                   disabled={state.isLoading}
                 />
               </div>
 
               {/* 비밀번호 확인 */}
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  비밀번호 확인
-                </label>
                 <input
                   type="password"
                   value={signupForm.confirmPassword}
                   onChange={(e) => setSignupForm({ ...signupForm, confirmPassword: e.target.value })}
                   className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                  placeholder="비밀번호를 다시 입력하세요"
+                  placeholder="비밀번호 확인"
                   disabled={state.isLoading}
                 />
               </div>
@@ -380,7 +375,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
               <button
                 type="submit"
                 disabled={state.isLoading || !isEmailVerified}
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-[#5CD1E5] text-white py-2 px-4 rounded-md hover:bg-[#04B5B5] focus:outline-none focus:ring-2 focus:ring-[#04B5B5] disabled:opacity-50"
               >
                 {state.isLoading ? '가입 중...' : '회원가입'}
               </button>
@@ -403,11 +398,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
           <div className="space-y-3">
             <button
               onClick={() => handleSocialLogin('google')}
-              className="w-full flex items-center justify-center px-4 py-2 border border-slate-600 rounded-md shadow-sm bg-slate-700 text-gray-200 hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full flex items-center justify-center px-4 py-2 border border-slate-600 rounded-md shadow-sm bg-slate-700 text-white hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
             >
               <img
-                className="w-5 h-5 mr-2"
-                src="https://developers.google.com/identity/images/g-logo.png"
+                className="w-5 h-5 mr-2 bg-slate-700"
+                src="src/images/g-logo.png"
                 alt="Google"
               />
               Google로 계속하기
@@ -415,21 +410,25 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
 
             <button
               onClick={() => handleSocialLogin('naver')}
-              className="w-full flex items-center justify-center px-4 py-2 border border-green-600 rounded-md shadow-sm bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400"
+              className="w-full flex items-center justify-center px-4 py-2 border border-slate-600 rounded-md shadow-sm bg-slate-700 text-white hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
             >
-              <span className="w-5 h-5 mr-2 bg-white text-green-600 rounded text-sm font-bold flex items-center justify-center">
-                N
-              </span>
+              <img
+                className="w-5 h-5 mr-2 bg-slate-700"
+                src="src/images/btnG.png"
+                alt="Naver"
+              />
               네이버로 계속하기
             </button>
 
             <button
               onClick={() => handleSocialLogin('kakao')}
-              className="w-full flex items-center justify-center px-4 py-2 border border-yellow-600 rounded-md shadow-sm bg-yellow-500 text-gray-900 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              className="w-full flex items-center justify-center px-4 py-2 border border-slate-600 rounded-md shadow-sm bg-slate-700 text-white hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
             >
-              <span className="w-5 h-5 mr-2 bg-gray-900 text-yellow-500 rounded text-sm font-bold flex items-center justify-center">
-                K
-              </span>
+              <img
+                className="w-5.5 h-5.5 mr-2 bg-slate-700 border border-slate-700 rounded-md"
+                src="src/images/kk.png"
+                alt="Kakao"
+              />
               카카오로 계속하기
             </button>
           </div>
