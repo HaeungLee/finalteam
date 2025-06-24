@@ -1,5 +1,6 @@
 import agenticaLogo from "/agentica.svg";
 import { FiChevronLeft, FiMenu } from 'react-icons/fi';
+import { useNavigate } from "react-router-dom";
 
 interface NavigationProps {
   isOpen: boolean;
@@ -7,6 +8,7 @@ interface NavigationProps {
 }
 
 const Navigation: React.FC<NavigationProps> = ({ isOpen, onToggle }) => {
+  const navigate = useNavigate();
   const toggleSidebar = (e: React.MouseEvent) => {
     e.stopPropagation();
     onToggle();
@@ -40,29 +42,34 @@ const Navigation: React.FC<NavigationProps> = ({ isOpen, onToggle }) => {
       >
 
         {/* 로고/제목 및 토글 버튼 */}
-        <div className="flex items-center justify-between pr-4">
-          <div className="flex items-center space-x-2">
+        <div className="flex items-center justify-between w-full pr-4">
+          <div 
+            className="flex items-center cursor-pointer"
+            onClick={() => navigate('/')}
+          >
             <img
               src={agenticaLogo}
               alt="Agentica logo"
               className={`w-8 h-8 transition-all hover:filter hover:drop-shadow-[0_0_1rem_rgba(255,255,255,0.5)] ${!isOpen ? 'ml-10' : ''}`}
             />
             {isOpen && (
-              <>
-                <h1 className="text-xl font-semibold text-white">
-                  Agentica
-                </h1>
-                <button 
-                  onClick={toggleSidebar}
-                  className="p-1 rounded-md hover:bg-gray-700 transition-colors ml-15"
-                  aria-label="Close navigation"
-                >
-                  <FiChevronLeft size={24} />
-                </button>
-              </>
+              <h1 className="text-xl font-semibold text-white ml-2">
+                Agentica
+              </h1>
             )}
           </div>
-          {isOpen && <div className="w-8"></div>}
+          {isOpen && (
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleSidebar(e);
+              }}
+              className="p-1 rounded-md hover:bg-gray-700 transition-colors"
+              aria-label="Close navigation"
+            >
+              <FiChevronLeft size={24} />
+            </button>
+          )}
         </div>
       <ul className="space-y-4">
         <li className="text-white hover:text-gray-300 cursor-pointer p-2 rounded hover:bg-gray-700">

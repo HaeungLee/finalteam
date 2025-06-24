@@ -40,14 +40,11 @@ export function AgenticaRpcProvider({ children }: PropsWithChildren) {
     return Promise.resolve();
   });
 
-  // pushMessageRef를 최신 상태로 유지
-  const pushMessage = useCallback(async (message: IAgenticaEventJson) => {
-    return pushMessageRef.current(message);
-  }, []);
-
   const tryConnect = useCallback(async () => {
     try {
       setIsError(false);
+      console.log('Connecting to WebSocket server at:', import.meta.env.VITE_AGENTICA_WS_URL);
+      
       const connector: WebSocketConnector<
         null,
         IAgenticaRpcListener,
@@ -57,13 +54,28 @@ export function AgenticaRpcProvider({ children }: PropsWithChildren) {
         IAgenticaRpcListener,
         IAgenticaRpcService<"chatgpt">
       >(null, {
-        assistantMessage: (msg) => pushMessageRef.current(msg),
-        describe: (msg) => pushMessageRef.current(msg),
-        userMessage: (msg) => pushMessageRef.current(msg)
+        assistantMessage: async (msg) => {
+          console.log('Received assistant message:', msg);
+          await pushMessageRef.current(msg);
+        },
+        describe: async (msg) => {
+          console.log('Received description:', msg);
+          await pushMessageRef.current(msg);
+        },
+        userMessage: async (msg) => {
+          console.log('Received user message:', msg);
+          await pushMessageRef.current(msg);
+        }
       });
+      
+      console.log('Attempting to connect to WebSocket...');
       await connector.connect(import.meta.env.VITE_AGENTICA_WS_URL);
+      console.log('WebSocket connected successfully');
+      
       const driver = connector.getDriver();
       setDriver(driver);
+      console.log('WebSocket driver initialized');
+      
       return connector;
     } catch (e) {
       console.error(e);
